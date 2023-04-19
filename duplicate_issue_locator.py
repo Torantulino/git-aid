@@ -84,4 +84,6 @@ def find_duplicate_issues(issues, issue_texts, similarity_threshold=0.6):
 if __name__ == '__main__':
     owner, repo = 'Torantulino', 'Auto-GPT'
     print("Fetching issues...")
-    issues = fetch_open
+    issues = fetch_open_issues(owner, repo)
+    issue_texts = extract_issue_texts(issues)
+    find_duplicate_issues(issues, issue_texts)
