@@ -1,18 +1,19 @@
 import requests
 import json
-import gensim
 from gensim import corpora, models, similarities
 import numpy as np
 from tqdm import tqdm
+from datetime import datetime, timedelta
 
-def fetch_open_issues(owner, repo):
+def fetch_open_issues(owner, repo, since_days=30):
     """Fetch all open issues from the specified GitHub repository."""
     issues = []
     page = 1
     per_page = 100
+    since_date = (datetime.now() - timedelta(days=since_days)).strftime('%Y-%m-%dT%H:%M:%SZ')
 
     while True:
-        url = f'https://api.github.com/repos/{owner}/{repo}/issues?state=open&per_page={per_page}&page={page}&filter=all'
+        url = f'https://api.github.com/repos/{owner}/{repo}/issues?state=open&per_page={per_page}&page={page}&creator={owner}&since={since_date}'
         response = requests.get(url)
         fetched_issues = json.loads(response.text)
 
@@ -48,6 +49,7 @@ def find_duplicate_issues(issues, issue_texts, similarity_threshold=0.8):
     num_duplicates = 0
     similarity_sum = 0
     similarity_count = 0
+    duplicate_pairs = set()
 
     for i in tqdm(range(num_issues), desc="Processing issues"):
         issue1 = issues[i]
@@ -57,12 +59,12 @@ def find_duplicate_issues(issues, issue_texts, similarity_threshold=0.8):
                 similarity_sum += similarities[j]
                 similarity_count += 1
                 if similarities[j] > similarity_threshold:
-                    num_duplicates += 1
+                    duplicate_pairs.add(tuple(sorted((issue1['number'], issue2['number']))))
                     print(f"Issue {issue1['number']} and Issue {issue2['number']} might be duplicates with a similarity score of {similarities[j]:.2f}", flush=True)
 
     mean_similarity = similarity_sum / similarity_count
     print(f"\nNumber of issues checked: {num_issues}")
-    print(f"Number of possible duplicates found: {num_duplicates}")
+    print(f"Number of possible duplicates found: {len(duplicate_pairs)}")
     print(f"Mean similarity: {mean_similarity:.2f}")
 
 if __name__ == '__main__':
