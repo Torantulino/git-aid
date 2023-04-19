@@ -12,7 +12,7 @@ def fetch_open_issues(owner, repo):
     per_page = 100
 
     while True:
-        url = f'https://api.github.com/repos/{owner}/{repo}/issues?state=open&per_page={per_page}&page={page}'
+        url = f'https://api.github.com/repos/{owner}/{repo}/issues?state=open&per_page={per_page}&page={page}&filter=all'
         response = requests.get(url)
         fetched_issues = json.loads(response.text)
 
