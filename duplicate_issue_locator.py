@@ -9,6 +9,11 @@ from gensim.parsing.preprocessing import remove_stopwords
 import matplotlib.pyplot as plt
 from heapq import nlargest
 import time
+import argparse
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
 
 def fetch_open_issues(owner, repo, since_days=30):
     """Fetch all open issues from the specified GitHub repository."""
@@ -17,7 +22,7 @@ def fetch_open_issues(owner, repo, since_days=30):
     per_page = 100
     since_date = (datetime.now() - timedelta(days=since_days)).strftime('%Y-%m-%dT%H:%M:%SZ')
 
-    headers = {'Authorization': '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'}
+    headers = {'Authorization': f'token {os.getenv("API_KEY")}'}
 
     while True:
         url = f'https://api.github.com/repos/{owner}/{repo}/issues?state=open&per_page={per_page}&page={page}&author={owner}&since={since_date}'
@@ -124,7 +129,13 @@ def find_duplicate_issues(issues, issue_texts, similarity_threshold=0.7, top_n=5
 
 
 if __name__ == '__main__':
-    owner, repo = 'Torantulino', 'Auto-GPT'
+    parser = argparse.ArgumentParser(description='Find duplicate issues in a GitHub repository.')
+    parser.add_argument('owner', metavar='OWNER', type=str, help='GitHub repository owner')
+    parser.add_argument('repo', metavar='REPO', type=str, help='GitHub repository name')
+
+    args = parser.parse_args()
+    owner, repo = args.owner, args.repo
+
     print("Fetching issues...")
     issues = fetch_open_issues(owner, repo)
     issue_texts = extract_issue_texts(issues)
