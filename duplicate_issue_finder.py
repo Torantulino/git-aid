@@ -22,7 +22,7 @@ def fetch_open_issues(owner, repo, since_days=30):
     per_page = 100
     since_date = (datetime.now() - timedelta(days=since_days)).strftime('%Y-%m-%dT%H:%M:%SZ')
 
-    headers = {'Authorization': f'token {os.getenv("API_KEY")}'}
+    headers = {'Authorization': f'token {os.getenv("GITHUB_READONLY_TOKEN")}'}
 
     while True:
         url = f'https://api.github.com/repos/{owner}/{repo}/issues?state=open&per_page={per_page}&page={page}&author={owner}&since={since_date}'
