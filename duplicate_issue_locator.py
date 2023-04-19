@@ -3,6 +3,7 @@ import json
 import gensim
 from gensim import corpora, models, similarities
 import numpy as np
+from tqdm import tqdm
 
 def fetch_open_issues(owner, repo):
     """Fetch all open issues from the specified GitHub repository."""
@@ -47,7 +48,8 @@ def find_duplicate_issues(issues, issue_texts, similarity_threshold=0.8):
     similarity_sum = 0
     similarity_count = 0
 
-    for i, issue1 in enumerate(issues):
+    for i in tqdm(range(num_issues), desc="Processing issues"):
+        issue1 = issues[i]
         similarities = index[corpus[i]]
         for j, issue2 in enumerate(issues):
             if i != j:
