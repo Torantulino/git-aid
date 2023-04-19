@@ -4,6 +4,7 @@ from gensim import corpora, models, similarities
 import numpy as np
 from tqdm import tqdm
 from datetime import datetime, timedelta
+import gensim
 
 def fetch_open_issues(owner, repo, since_days=30):
     """Fetch all open issues from the specified GitHub repository."""
@@ -13,9 +14,16 @@ def fetch_open_issues(owner, repo, since_days=30):
     since_date = (datetime.now() - timedelta(days=since_days)).strftime('%Y-%m-%dT%H:%M:%SZ')
 
     while True:
-        url = f'https://api.github.com/repos/{owner}/{repo}/issues?state=open&per_page={per_page}&page={page}&creator={owner}&since={since_date}'
-        response = requests.get(url)
-        fetched_issues = json.loads(response.text)
+        url = f'https://api.github.com/repos/{owner}/{repo}/issues?state=open&per_page={per_page}&page={page}&author={owner}&since={since_date}'
+        try:
+            response = requests.get(url)
+            if response.status_code != 200:
+                print(f"Error encountered while fetching issues: Status code {response.status_code}")
+                break
+            fetched_issues = json.loads(response.text)
+        except requests.exceptions.RequestException as e:
+            print(f"Error encountered while fetching issues: {e}")
+            break
 
         if not fetched_issues:
             break
@@ -25,6 +33,7 @@ def fetch_open_issues(owner, repo, since_days=30):
         page += 1
 
     return issues
+
 
 def extract_issue_texts(issues):
     """Extract issue titles and descriptions from the list of issues."""
