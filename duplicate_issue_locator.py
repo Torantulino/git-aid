@@ -8,6 +8,7 @@ import gensim
 from gensim.parsing.preprocessing import remove_stopwords
 import matplotlib.pyplot as plt
 from heapq import nlargest
+import time
 
 def fetch_open_issues(owner, repo, since_days=30):
     """Fetch all open issues from the specified GitHub repository."""
@@ -22,9 +23,24 @@ def fetch_open_issues(owner, repo, since_days=30):
         url = f'https://api.github.com/repos/{owner}/{repo}/issues?state=open&per_page={per_page}&page={page}&author={owner}&since={since_date}'
         try:
             response = requests.get(url, headers=headers)
-            if response.status_code != 200:
+            
+            rate_limit_remaining = int(response.headers.get('X-RateLimit-Remaining', 0))
+            rate_limit_reset = int(response.headers.get('X-RateLimit-Reset', 0))
+
+            if rate_limit_remaining <= 1:
+                reset_time = datetime.utcfromtimestamp(rate_limit_reset)
+                wait_time = (reset_time - datetime.utcnow()).total_seconds()
+                print(f"Rate limit exceeded. Waiting for {wait_time:.0f} seconds.")
+                time.sleep(wait_time)
+                continue
+
+            if response.status_code == 403:
+                print("Error 403: Forbidden. Check your access token and permissions.")
+                break
+            elif response.status_code != 200:
                 print(f"Error encountered while fetching issues: Status code {response.status_code}")
                 break
+
             fetched_issues = json.loads(response.text)
         except requests.exceptions.RequestException as e:
             print(f"Error encountered while fetching issues: {e}")
