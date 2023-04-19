@@ -10,6 +10,7 @@ import openai
 from dotenv import load_dotenv
 from typing import List, Dict, Union
 import logging
+import argparse
 
 # Load environment variables from .env file
 load_dotenv()
@@ -126,15 +127,18 @@ def process_issue(issue: Dict[str, Union[str, int]], repo_owner: str, repo_name:
         logging.info(f"Bot already commented on issue {issue['number']}")
 
 def main() -> None:
-    repo_owner = "Torantulino"
-    repo_name = "AI-Github-Interlocutor"
+    parser = argparse.ArgumentParser(description="AI GitHub Issue Helper")
+    parser.add_argument("repo_owner", help="GitHub repository owner's username")
+    parser.add_argument("repo_name", help="GitHub repository name")
+
+    args = parser.parse_args()
 
     try:
-        issues = get_latest_issues(repo_owner, repo_name)
+        issues = get_latest_issues(args.repo_owner, args.repo_name)
         logging.info(f"Found {len(issues)} issues")
 
         for issue in issues:
-            process_issue(issue, repo_owner, repo_name)
+            process_issue(issue, args.repo_owner, args.repo_name)
 
     except (GitHubAPIError, GPT4Error) as e:
         logging.error(f"Error: {str(e)}")
