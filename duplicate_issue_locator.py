@@ -77,6 +77,12 @@ def compute_similarity_matrix(corpus):
 def find_duplicate_issues(issues, issue_texts, similarity_threshold=0.7, top_n=5):
     """Find and print duplicate issues based on the similarity threshold."""
     dictionary, corpus = create_corpus(issue_texts)
+    
+    # Add check for empty corpus
+    if not corpus:
+        print("No issues found for processing. Exiting.")
+        return
+
     index = compute_similarity_matrix(corpus)
 
     issue_texts_mapping = {i: issue for i, issue in enumerate(issues) if 'pull_request' not in issue}
