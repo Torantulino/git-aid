@@ -6,9 +6,22 @@ import numpy as np
 
 def fetch_open_issues(owner, repo):
     """Fetch all open issues from the specified GitHub repository."""
-    url = f'https://api.github.com/repos/{owner}/{repo}/issues?state=open'
-    response = requests.get(url)
-    return json.loads(response.text)
+    issues = []
+    page = 1
+    per_page = 100
+
+    while True:
+        url = f'https://api.github.com/repos/{owner}/{repo}/issues?state=open&per_page={per_page}&page={page}'
+        response = requests.get(url)
+        fetched_issues = json.loads(response.text)
+
+        if not fetched_issues:
+            break
+
+        issues.extend(fetched_issues)
+        page += 1
+
+    return issues
 
 def extract_issue_texts(issues):
     """Extract issue titles and descriptions from the list of issues."""
