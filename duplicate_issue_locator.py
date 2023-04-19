@@ -2,6 +2,7 @@ import requests
 import json
 import gensim
 from gensim import corpora, models, similarities
+import numpy as np
 
 def fetch_open_issues(owner, repo):
     """Fetch all open issues from the specified GitHub repository."""
@@ -28,11 +29,25 @@ def find_duplicate_issues(issues, issue_texts, similarity_threshold=0.8):
     dictionary, corpus = create_corpus(issue_texts)
     index = compute_similarity_matrix(corpus)
 
+    num_issues = len(issues)
+    num_duplicates = 0
+    similarity_sum = 0
+    similarity_count = 0
+
     for i, issue1 in enumerate(issues):
         similarities = index[corpus[i]]
         for j, issue2 in enumerate(issues):
-            if i != j and similarities[j] > similarity_threshold:
-                print(f"Issue {issue1['number']} and Issue {issue2['number']} might be duplicates with a similarity score of {similarities[j]:.2f}", flush=True)
+            if i != j:
+                similarity_sum += similarities[j]
+                similarity_count += 1
+                if similarities[j] > similarity_threshold:
+                    num_duplicates += 1
+                    print(f"Issue {issue1['number']} and Issue {issue2['number']} might be duplicates with a similarity score of {similarities[j]:.2f}", flush=True)
+
+    mean_similarity = similarity_sum / similarity_count
+    print(f"\nNumber of issues checked: {num_issues}")
+    print(f"Number of possible duplicates found: {num_duplicates}")
+    print(f"Mean similarity: {mean_similarity:.2f}")
 
 if __name__ == '__main__':
     owner, repo = 'Torantulino', 'Auto-GPT'
