@@ -5,6 +5,7 @@ import numpy as np
 from tqdm import tqdm
 from datetime import datetime, timedelta
 import gensim
+from gensim.parsing.preprocessing import remove_stopwords
 
 def fetch_open_issues(owner, repo, since_days=30):
     """Fetch all open issues from the specified GitHub repository."""
@@ -13,10 +14,12 @@ def fetch_open_issues(owner, repo, since_days=30):
     per_page = 100
     since_date = (datetime.now() - timedelta(days=since_days)).strftime('%Y-%m-%dT%H:%M:%SZ')
 
+    headers = {'Authorization': 'token YOUR_PERSONAL_ACCESS_TOKEN'}
+
     while True:
         url = f'https://api.github.com/repos/{owner}/{repo}/issues?state=open&per_page={per_page}&page={page}&author={owner}&since={since_date}'
         try:
-            response = requests.get(url)
+            response = requests.get(url, headers=headers)
             if response.status_code != 200:
                 print(f"Error encountered while fetching issues: Status code {response.status_code}")
                 break
@@ -34,22 +37,24 @@ def fetch_open_issues(owner, repo, since_days=30):
 
     return issues
 
-
 def extract_issue_texts(issues):
     """Extract issue titles and descriptions from the list of issues."""
     return [f"{issue['title']} {issue['body']}" for issue in issues]
 
+def tokenize(text):
+    return gensim.utils.simple_preprocess(remove_stopwords(text), deacc=True)
+
 def create_corpus(issue_texts):
     """Create a dictionary and corpus for similarity computation."""
-    dictionary = corpora.Dictionary([gensim.utils.simple_preprocess(text) for text in issue_texts])
-    return dictionary, [dictionary.doc2bow(gensim.utils.simple_preprocess(text)) for text in issue_texts]
+    dictionary = corpora.Dictionary([tokenize(text) for text in issue_texts])
+    return dictionary, [dictionary.doc2bow(tokenize(text)) for text in issue_texts]
 
 def compute_similarity_matrix(corpus):
     """Train a TF-IDF model and compute the similarity matrix."""
     tfidf = models.TfidfModel(corpus)
     return similarities.MatrixSimilarity(tfidf[corpus])
 
-def find_duplicate_issues(issues, issue_texts, similarity_threshold=0.8):
+def find_duplicate_issues(issues, issue_texts, similarity_threshold=0.6):
     """Find and print duplicate issues based on the similarity threshold."""
     dictionary, corpus = create_corpus(issue_texts)
     index = compute_similarity_matrix(corpus)
@@ -79,6 +84,4 @@ def find_duplicate_issues(issues, issue_texts, similarity_threshold=0.8):
 if __name__ == '__main__':
     owner, repo = 'Torantulino', 'Auto-GPT'
     print("Fetching issues...")
-    issues = fetch_open_issues(owner, repo)
-    issue_texts = extract_issue_texts(issues)
-    find_duplicate_issues(issues, issue_texts)
+    issues = fetch_open
