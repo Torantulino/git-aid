@@ -6,6 +6,7 @@ from tqdm import tqdm
 from datetime import datetime, timedelta
 import gensim
 from gensim.parsing.preprocessing import remove_stopwords
+import matplotlib.pyplot as plt
 
 def fetch_open_issues(owner, repo, since_days=30):
     """Fetch all open issues from the specified GitHub repository."""
@@ -54,7 +55,7 @@ def compute_similarity_matrix(corpus):
     tfidf = models.TfidfModel(corpus)
     return similarities.MatrixSimilarity(tfidf[corpus])
 
-def find_duplicate_issues(issues, issue_texts, similarity_threshold=0.6):
+def find_duplicate_issues(issues, issue_texts, similarity_threshold=0.7):
     """Find and print duplicate issues based on the similarity threshold."""
     dictionary, corpus = create_corpus(issue_texts)
     index = compute_similarity_matrix(corpus)
@@ -72,6 +73,7 @@ def find_duplicate_issues(issues, issue_texts, similarity_threshold=0.6):
             if i != j:
                 similarity_sum += similarities[j]
                 similarity_count += 1
+                similarity_scores.append(similarities[j])
                 if similarities[j] > similarity_threshold:
                     duplicate_pairs.add(tuple(sorted((issue1['number'], issue2['number']))))
                     print(f"Issue {issue1['number']} and Issue {issue2['number']} might be duplicates with a similarity score of {similarities[j]:.2f}", flush=True)
@@ -81,6 +83,11 @@ def find_duplicate_issues(issues, issue_texts, similarity_threshold=0.6):
     print(f"Number of possible duplicates found: {len(duplicate_pairs)}")
     print(f"Mean similarity: {mean_similarity:.2f}")
 
+    plt.hist(similarity_scores, bins=50)
+    plt.xlabel('Similarity score')
+    plt.ylabel('Frequency')
+    plt.title('Histogram of similarity scores')
+    plt.show()
 if __name__ == '__main__':
     owner, repo = 'Torantulino', 'Auto-GPT'
     print("Fetching issues...")
