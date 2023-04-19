@@ -20,6 +20,7 @@ def fetch_open_issues(owner, repo):
             break
 
         issues.extend(fetched_issues)
+        print(f"Fetched issues: {len(issues)}", end='\r')
         page += 1
 
     return issues
@@ -66,6 +67,7 @@ def find_duplicate_issues(issues, issue_texts, similarity_threshold=0.8):
 
 if __name__ == '__main__':
     owner, repo = 'Torantulino', 'Auto-GPT'
+    print("Fetching issues...")
     issues = fetch_open_issues(owner, repo)
     issue_texts = extract_issue_texts(issues)
     find_duplicate_issues(issues, issue_texts)
