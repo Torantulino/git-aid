@@ -1,7 +1,11 @@
+beautifulsoup4==4.12.2
 gensim==4.3.1
+html2text==2020.1.16
+Markdown==3.4.3
 matplotlib==3.7.1
 numpy==1.24.2
 openai==0.27.2
 python-dotenv==1.0.0
 requests==2.28.2
 tqdm==4.64.1
+unidiff==0.7.5
