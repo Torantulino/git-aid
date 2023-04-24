@@ -8,7 +8,7 @@ from bs4 import BeautifulSoup
 from dotenv import load_dotenv
 from html2text import html2text
 from markdown import markdown
-from unidiff import PatchSet
+
 
 load_dotenv()
 
@@ -43,7 +43,7 @@ class PRReviewer:
         response = requests.get(pr_url)
         soup = BeautifulSoup(response.text, "html.parser")
 
-        diff_url = f"{pr_url}.patch"
+        diff_url = f"{pr_url}.diff"
         description = soup.select_one(".markdown-body").get_text()
         title = soup.select_one("h1.gh-header-title").get_text().strip()
 
@@ -52,27 +52,19 @@ class PRReviewer:
     def fetch_and_parse_diff(self, diff_url: str):
         response = requests.get(diff_url)
         raw_diff = response.text
-        patch = PatchSet(raw_diff)
-        return patch
-
-    def prepare_code_changes_messages(self, patch: PatchSet):
-        code_changes = []
-        for file in patch:
-            if not file.path.endswith("lock.json"):
-                code_changes.append(f"```diff\n{file}\n```")
-        return code_changes
+        return raw_diff
 
     def review_pull_request(self, pr_url: str, progress_callback: Callable = print):
         diff_url, description, title = self.extract_pr_info(pr_url)
 
-        patch = self.fetch_and_parse_diff(diff_url)
-        code_changes_messages = self.prepare_code_changes_messages(patch)
+        diff = self.fetch_and_parse_diff(diff_url)
 
-        code_changes_text = "\n".join(code_changes_messages)
         context_message = f"""The change has the following title: {title}.
 {description}
-Here are the code changes in unidiff format:
-{code_changes_text}
+Here are the code changes in unified diff format:
+```
+{diff}
+```
 
 Your task is to:
 - Review the code changes and provide feedback.
