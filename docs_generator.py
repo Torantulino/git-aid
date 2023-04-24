@@ -103,7 +103,7 @@ def main(repo_url):
     readme_content = generate_readme_gpt4(summaries)
 
     print("Writing README.md to disk...")
-    with open("README.md", "w") as readme_file:
+    with open("output/README.md", "w") as readme_file:
         readme_file.write(readme_content)
 
     print("README.md has been successfully generated!")
