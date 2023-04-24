@@ -2,12 +2,12 @@ import os
 import sys
 import base64
 import re
-import time
 import openai
 from github import Github
 from github.ContentFile import ContentFile
 from dotenv import load_dotenv
 import os
+from tqdm import tqdm  # Import the tqdm library
 
 load_dotenv()
 # Set your GitHub and OpenAI API keys
@@ -75,20 +75,24 @@ def main(repo_url):
         print("Invalid GitHub repository URL.")
         sys.exit(1)
 
+    print("Accessing repository...")
     repo = g.get_repo(repo_path)
     files = get_files_in_repo(repo)
 
+    print("Summarizing files...")
     summaries = []
-    for file in files:
+    for file in tqdm(files, desc="Processing Files"):  # Wrap the loop with tqdm progress bar
         summary = summarize_file_gpt3(file)
-        # Sleep for 1 second to avoid rate limiting
-        time.sleep(1)
         summaries.append(summary)
 
+    print("Generating README.md content...")
     readme_content = generate_readme_gpt4(summaries)
 
+    print("Writing README.md to disk...")
     with open("README.md", "w") as readme_file:
         readme_file.write(readme_content)
+
+    print("README.md has been successfully generated!")
 
 if __name__ == "__main__":
     if len(sys.argv) != 2:
