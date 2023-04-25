@@ -17,7 +17,7 @@ class PRReviewer:
     def __init__(self):
         print("Initializing CodeReviewAssistant...")
 
-    def message_prreviewer(
+    def message_llm(
         self,
         system_prompt: str,
         prompt: str,
