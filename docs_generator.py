@@ -79,7 +79,7 @@ def summarize_file_gpt3(file_content):
 
 
 def generate_readme_gpt4(summaries):
-    system_prompt = "Please generate detailed documentation for the project."
+    system_prompt = "Your task is to write professional readmes to be displayed on GitHub projects. The user will provide you with a summary of each file in the project, pick the relevant information from these to create a well formatted and decorated readme."
     prompt = "Generate a detailed and professional ReadMe for this GitHub project based on the following file summaries:\n\n"
     prompt += "\n".join(f"{i+1}. {summary}" for i, summary in enumerate(summaries))
     readme_content = message_llm(
