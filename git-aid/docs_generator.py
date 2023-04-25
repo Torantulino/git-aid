@@ -39,7 +39,7 @@ def message_llm(
     user_prompt,
     model="gpt-4",
     temperature=0.7,
-    max_tokens=3000,
+    max_tokens=2500,
     retries=5,
 ):
     messages = [
