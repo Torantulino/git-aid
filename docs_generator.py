@@ -73,10 +73,11 @@ def summarize_file_gpt3(file_content):
 
 
 def generate_readme_gpt4(summaries):
-    prompt = "Generate detailed documentation for a project based on the following file summaries:\n\n"
+    system_prompt="Please generate detailed documentation for the project."
+    prompt = "Generate a detailed and professional ReadMe for this GitHub project based on the following file summaries:\n\n"
     prompt += "\n".join(f"{i+1}. {summary}" for i, summary in enumerate(summaries))
     readme_content = message_llm(
-        "Please generate detailed documentation for the project.", prompt, model="gpt-3.5-turbo"
+        system_prompt=system_prompt, user_prompt=prompt, model="gpt-3.5-turbo"
     )
 
     return readme_content
