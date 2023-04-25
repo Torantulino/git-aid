@@ -82,8 +82,9 @@ def generate_readme_gpt4(summaries):
     system_prompt = "Your task is to write professional readmes to be displayed on the front page of GitHub projects. The user will provide you with a summary of every single file in the repository, including those which are irrelevant such as gitignores. Write a professional, well formatted and decorated GitHub readme."
     prompt = "Please generate a professional GitHub Readme for this repository.\Repo Contents:\n"
     prompt += "\n".join(f"{i+1}. {summary}" for i, summary in enumerate(summaries))
+
     readme_content = message_llm(
-        system_prompt=system_prompt, user_prompt=prompt, model="gpt-3.5-turbo"
+        system_prompt=system_prompt, user_prompt=prompt, model="gpt-4"
     )
 
     return readme_content
