@@ -1,9 +1,10 @@
 # Duplicate Issue Finder & GPT-4 Issue Responder
 
-This repository contains two Python scripts to help manage GitHub issues for a given repository:
+This repository contains Three Python scripts to help manage GitHub issues for a given repository:
 
 1. `duplicate_issue_finder.py`: Helps in finding potential duplicate issues in a GitHub repository.
 2. `gpt_issue_responder.py`: Uses OpenAI's GPT-4 model to generate responses to GitHub issues and posts them as comments.
+3. `pr_reviewer.py`: Uses OpenAI's language model to assist developers in reviewing code changes in a GitHub pull request by identifying potential bugs or issues, suggesting missed best-practices, and assessing the code's intended purpose.
 
 ⚠️ Warning - Experimental. `gpt_issue_responder` posts to GitHub using your account, use at your own risk ⚠️
 
@@ -54,3 +55,17 @@ python gpt_issue_responder.py <owner> <repo>
 Replace `<owner>` and `<repo>` with the correct repository owner and name.
 
 The script will fetch the latest issues from the specified repository, generate AI responses using GPT-4, and display them in the command prompt. You can choose to post the AI-generated responses as comments on the respective issues or skip them.
+### GPT-4 PR-Reviewer
+To use the PR Reviewer script, run the `pr_reviewer.py`file with the pull request URL as a command-line argument:
+```bash
+python pr_reviewer.py <pull_request_url>
+```
+Replace `<pull_request_url>` with the URL of the GitHub pull request you want to review.
+
+The script will extract the diff URL, title, and description of the pull request, and fetch the code changes in unified diff format. It will then generate a prompt for the OpenAI language model that asks it to analyze the code changes, identify potential bugs or issues, suggest missed best-practices, and assess whether the code achieves its intended purpose.
+
+The language model will generate a comprehensive code review that includes feedback and guidance on how to improve the code, which will be displayed in the terminal.
+
+Note that you will need to set your OpenAI API key as an environment variable `OPENAI_API_KEY` before running the script. You can obtain an API key from the OpenAI website.
+
+Remember, the goal of the PR Reviewer script is to help developers improve their code by providing constructive feedback and guidance. Use the feedback provided by the script to improve the quality and security of your code.
