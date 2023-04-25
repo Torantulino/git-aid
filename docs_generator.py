@@ -2,15 +2,15 @@ import base64
 import os
 import re
 import sys
+import time
 from concurrent.futures import ThreadPoolExecutor
 
 import openai
+import openai.error
 from dotenv import load_dotenv
 from github import Github
 from github.ContentFile import ContentFile
 from tqdm import tqdm
-import time
-import openai.error
 
 load_dotenv()
 GITHUB_API_KEY = os.getenv("GITHUB_READWRITE_TOKEN")
@@ -35,7 +35,12 @@ def get_files_in_repo(repo):
 
 
 def message_llm(
-    system_prompt, user_prompt, model="gpt-4", temperature=0.7, max_tokens=3000, retries=5
+    system_prompt,
+    user_prompt,
+    model="gpt-4",
+    temperature=0.7,
+    max_tokens=3000,
+    retries=5,
 ):
     messages = [
         {"role": "system", "content": system_prompt},
@@ -53,11 +58,12 @@ def message_llm(
             return response.choices[0]["message"]["content"].strip()
         except openai.error.RateLimitError as e:
             if i < retries - 1:
-                wait_time = 2 ** i
+                wait_time = 2**i
                 print(f"Rate limit exceeded. Retrying in {wait_time} seconds...")
                 time.sleep(wait_time)
             else:
                 raise e
+
 
 def summarize_file_gpt3(file_content):
     content = base64.b64decode(file_content.content).decode("utf-8")
@@ -73,7 +79,7 @@ def summarize_file_gpt3(file_content):
 
 
 def generate_readme_gpt4(summaries):
-    system_prompt="Please generate detailed documentation for the project."
+    system_prompt = "Please generate detailed documentation for the project."
     prompt = "Generate a detailed and professional ReadMe for this GitHub project based on the following file summaries:\n\n"
     prompt += "\n".join(f"{i+1}. {summary}" for i, summary in enumerate(summaries))
     readme_content = message_llm(
@@ -103,7 +109,13 @@ def main(repo_url):
     print("Summarizing files...")
     summaries = []
     with ThreadPoolExecutor() as executor:
-        summaries = list(tqdm(executor.map(summarize_file_gpt3, files), total=len(files), desc="Processing Files"))
+        summaries = list(
+            tqdm(
+                executor.map(summarize_file_gpt3, files),
+                total=len(files),
+                desc="Processing Files",
+            )
+        )
 
     print("Generating README.md content...")
     readme_content = generate_readme_gpt4(summaries)
