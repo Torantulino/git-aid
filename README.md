@@ -4,34 +4,15 @@ This repository contains a collection of AI-assisted utilities to improve your e
 
 ## Table of Contents
 
-1. [Requirements](#requirements)
-2. [Installation](#installation)
-3. [Usage](#usage)
+1. [Installation](#installation)
+2. [Usage](#usage)
     1. [Duplicate Issue Finder](#duplicate-issue-finder)
     2. [GPT-4 Issue Responder](#gpt-4-issue-responder)
     3. [Software Architecture Generator](#software-architecture-generator)
     4. [README Generator](#readme-generator)
     5. [GitHub Repository Information Extractor](#github-repository-information-extractor)
     6. [Pull Request Reviewer](#pull-request-reviewer)
-4. [Contributing](#contributing)
-
-## Requirements
-
-This project requires Python 3.6+ and the following Python packages:
-
-- BeautifulSoup4
-- Gensim
-- Html2text
-- Markdown
-- Matplotlib
-- Numpy
-- OpenAI
-- Python-dotenv
-- Requests
-- TQDM
-- Unidiff
-
-Please refer to the `requirements.txt` file for the complete list of dependencies and their respective versions.
+3. [Contributing](#contributing)
 
 ## Installation
 
