@@ -22,7 +22,7 @@ def fetch_open_issues(owner, repo, since_days=30):
     per_page = 100
     since_date = (datetime.now() - timedelta(days=since_days)).strftime('%Y-%m-%dT%H:%M:%SZ')
 
-    headers = {'Authorization': f'token {os.getenv("GITHUB_READONLY_TOKEN")}'}
+    headers = {'Authorization': f'token {os.getenv("GITHUB_READ_ONLY_TOKEN")}'}
 
     while True:
         url = f'https://api.github.com/repos/{owner}/{repo}/issues?state=open&per_page={per_page}&page={page}&author={owner}&since={since_date}'
@@ -132,11 +132,15 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Find duplicate issues in a GitHub repository.')
     parser.add_argument('owner', metavar='OWNER', type=str, help='GitHub repository owner')
     parser.add_argument('repo', metavar='REPO', type=str, help='GitHub repository name')
+    parser.add_argument('--days', metavar='DAYS', type=int, default=30, help='Number of days to look back for issues (default: 30)')
+    parser.add_argument('--threshold', metavar='THRESHOLD', type=float, default=0.7, help='Similarity threshold for duplicate issues (default: 0.7)')
+    parser.add_argument('--top_n', metavar='TOP_N', type=int, default=5, help='Number of top duplicate pairs to show (default: 5)')
 
     args = parser.parse_args()
     owner, repo = args.owner, args.repo
+    days, threshold, top_n = args.days, args.threshold, args.top_n
 
     print("Fetching issues...")
-    issues = fetch_open_issues(owner, repo)
+    issues = fetch_open_issues(owner, repo, days)
     issue_texts = extract_issue_texts(issues)
-    find_duplicate_issues(issues, issue_texts)
+    find_duplicate_issues(issues, issue_texts, threshold, top_n)
