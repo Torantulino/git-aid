@@ -15,7 +15,7 @@ load_dotenv()
 
 class PRReviewer:
     def __init__(self):
-        print("Initializing CodeReviewAssistant...")
+        print("Initializing PR Reviewer...")
 
     def message_llm(
         self,
